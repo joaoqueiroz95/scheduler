@@ -21,10 +21,12 @@
     "next-auth": "^4.22.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "underscore": "^1.13.6"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/underscore": "^1.11.4",
     "prisma": "^4.12.0"
   }
 }

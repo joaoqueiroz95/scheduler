@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 
 const Auth = () => {
+  const { data: session } = useSession();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,6 +22,7 @@ const Auth = () => {
 
   return (
     <div>
+      <p>{JSON.stringify(session)}</p>
       <input
         id="username"
         type="text"

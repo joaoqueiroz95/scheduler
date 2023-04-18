@@ -1,8 +1,8 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
-import prismadb from "@/lib/prismadb";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prismadb from "@/libs/prismadb";
+import _ from "underscore";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -42,7 +42,7 @@ export const authOptions: AuthOptions = {
           throw new Error("Incorrect password");
         }
 
-        return user;
+        return _.pick(user, "id", "username", "name", "role");
       },
     }),
   ],
@@ -51,6 +51,15 @@ export const authOptions: AuthOptions = {
   },
   debug: process.env.NODE_ENV === "development",
   session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user }) {
+      return { ...token, ...user };
+    },
+    async session({ session, token }) {
+      session.user = _.pick(token as any, "id", "username", "name", "role");
+      return session;
+    },
+  },
 };
 
 export default NextAuth(authOptions);
