@@ -2,13 +2,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
 import { getLoggedUser } from "@/libs/session";
 import { Role } from "@prisma/client";
+import { checkAuth } from "@/middlewares/auth";
+import { checkRoles } from "@/middlewares/permissions";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const loggedUser = await getLoggedUser(req);
+    const { user: loggedUser } = req;
 
     if (!loggedUser) {
       return res.status(401).json({ error: "Unauthenticated" });
@@ -39,4 +38,6 @@ export default async function handler(
   } catch (error) {
     return res.status(400).json({ error: `Something went wrong: ${error}` });
   }
-}
+};
+
+export default checkAuth(checkRoles(handler, [Role.MANAGER, Role.ADMIN]));

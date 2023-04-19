@@ -42,7 +42,7 @@ export const authOptions: AuthOptions = {
           throw new Error("Incorrect password");
         }
 
-        return _.pick(user, "id", "username", "name", "role");
+        return _.pick(user, "id", "username");
       },
     }),
   ],
@@ -56,7 +56,7 @@ export const authOptions: AuthOptions = {
       return { ...token, ...user };
     },
     async session({ session, token }) {
-      session.user = _.pick(token as any, "id", "username", "name", "role");
+      session.user = _.pick(token as any, "id", "username");
       return session;
     },
   },
