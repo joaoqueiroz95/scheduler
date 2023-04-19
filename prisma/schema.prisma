@@ -11,13 +11,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  name      String
-  role      Role     @default(REGULAR)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  username     String   @unique
+  password     String
+  name         String
+  role         Role     @default(REGULAR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  agendas      Agenda[] @relation("ownerAgendas")
+  addedAgendas Agenda[] @relation("AddedAgendas")
 }
 
 enum Role {
@@ -27,11 +29,14 @@ enum Role {
 }
 
 model Agenda {
-  id        String   @id @default(uuid())
-  timezone  String   @default("UTC")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tasks     Task[]
+  id         String   @id @default(uuid())
+  timezone   String   @default("UTC")
+  owner      User     @relation("ownerAgendas", fields: [ownerId], references: [id], onDelete: Cascade)
+  addedUsers User[]   @relation("AddedAgendas")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tasks      Task[]
+  ownerId    String
 }
 
 model Task {
