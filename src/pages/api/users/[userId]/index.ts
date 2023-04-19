@@ -5,12 +5,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const id = req.query.id as string;
+  const userId = req.query.userId as string;
 
   if (req.method === "GET") {
     const user = await prismadb.user.findUnique({
       where: {
-        id,
+        id: userId,
       },
       select: {
         id: true,
@@ -20,7 +20,7 @@ export default async function handler(
       },
     });
 
-    res.status(200).json({ id });
+    res.status(200).json({ id: user?.id });
   }
 
   return res.status(405).end();
