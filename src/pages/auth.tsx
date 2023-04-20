@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
+import axios from "axios";
 
 const Auth = () => {
   const { data: session } = useSession();

@@ -6,7 +6,7 @@ import prismadb from "@/libs/prismadb";
 export const checkAuth =
   (handler: NextApiHandler) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const loggedUser = await getLoggedUser(req);
+    const loggedUser = await getLoggedUser(req, res);
 
     if (!loggedUser?.username) {
       return res.status(401).json({ error: "Unauthenticated" });
