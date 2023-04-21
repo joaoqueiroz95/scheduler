@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
-import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
-import { checkRoles } from "@/middlewares/permissions";
 import { isManagerUser, isRegularUser } from "@/libs/role";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
