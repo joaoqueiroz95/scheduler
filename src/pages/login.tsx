@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
-import axios from "axios";
 
 const Auth = () => {
-  const { data: session } = useSession();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,8 +13,8 @@ const Auth = () => {
         await signIn("credentials", {
           username,
           password,
-          redirect: false,
-          callbackUrl: "/auth",
+          redirect: true,
+          callbackUrl: "/",
         });
       } catch (error) {
         console.log(error);
@@ -101,7 +98,7 @@ const Auth = () => {
           <p className="mt-10 text-center text-sm text-gray-500">
             No account?{" "}
             <a
-              href="#"
+              href="/register"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
             >
               Sign up
