@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { Session } from 'next-auth';
+import { Session } from "next-auth";
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
     accessToken?: string;
   }

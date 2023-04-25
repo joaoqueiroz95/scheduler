@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useCallback, useState } from "react";
+import { signIn } from "next-auth/react";
 
 const Auth = () => {
   const [username, setUsername] = useState("");
