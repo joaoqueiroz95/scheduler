@@ -1,10 +1,13 @@
 import AgendaOverviewCard from "@/components/AgendaOverviewCard";
 import Navbar from "@/components/Navbar";
+import useAgendas from "@/hooks/useAgendaList";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import Head from "next/head";
 
 export default function Home() {
+  const { data: agendas } = useAgendas();
+
   return (
     <>
       <Head>
@@ -15,11 +18,9 @@ export default function Home() {
       </Head>
       <Navbar />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 m-8">
-        <AgendaOverviewCard />
-        <AgendaOverviewCard />
-        <AgendaOverviewCard />
-        <AgendaOverviewCard />
-        <AgendaOverviewCard />
+        {agendas.agendas.map((agenda) => (
+          <AgendaOverviewCard agenda={agenda} />
+        ))}
       </div>
     </>
   );

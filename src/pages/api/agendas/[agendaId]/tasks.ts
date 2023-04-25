@@ -6,9 +6,7 @@ import { isManagerUser, isRegularUser } from "@/libs/role";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    if (req.method === "GET") {
-      return await checkAuth(handleGet)(req, res);
-    } else if (req.method === "POST") {
+    if (req.method === "POST") {
       return await checkAuth(handlePost)(req, res);
     }
 
@@ -18,56 +16,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-// GET
-const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
-  const loggedUser = req.user as User;
-
-  if (!loggedUser) {
-    return res.status(401).json({ error: "Unauthenticated" });
-  }
-
-  let whereQuery = {};
-  if (isRegularUser(loggedUser)) {
-    whereQuery = {
-      ownerId: loggedUser.id,
-    };
-  } else if (isManagerUser(loggedUser)) {
-    whereQuery = {
-      OR: [
-        {
-          ownerId: loggedUser.id,
-        },
-        {
-          owner: {
-            role: Role.REGULAR,
-          },
-        },
-      ],
-    };
-  }
-
-  const agendas = await prismadb.agenda.findMany({
-    where: whereQuery,
-    include: {
-      owner: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-
-  return res.status(200).json({ agendas });
-};
-
 // POST
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const loggedUser = req.user as User;
   let { name, timezone, ownerId } = req.body;
-
-  if (!loggedUser) {
-    return res.status(401).json({ error: "Unauthenticated" });
-  }
 
   if (isRegularUser(loggedUser)) {
     ownerId = loggedUser.id;
