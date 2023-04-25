@@ -54,6 +54,12 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
           name: true,
         },
       },
+      tasks: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 
@@ -65,10 +71,6 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const loggedUser = req.user as User;
   let { name, timezone, ownerId } = req.body;
 
-  if (!loggedUser) {
-    return res.status(401).json({ error: "Unauthenticated" });
-  }
-
   if (isRegularUser(loggedUser)) {
     ownerId = loggedUser.id;
   } else {
@@ -79,9 +81,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (!user) {
-      return res
-        .status(403)
-        .json({ error: "The provided userId does not exist." });
+      return res.status(404).json({ error: "'userId' does not exist." });
     }
 
     if (isManagerUser(loggedUser)) {

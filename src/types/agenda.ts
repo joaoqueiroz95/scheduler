@@ -6,6 +6,7 @@ export interface IAgenda {
   id: string;
   name: string;
   owner: { name: string };
+  tasks: { id: string; name: string }[];
   ownerId: string;
   timezone: string;
   createdAt: string;

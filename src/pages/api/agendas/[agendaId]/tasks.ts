@@ -19,52 +19,63 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 // POST
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const loggedUser = req.user as User;
-  let { name, timezone, ownerId } = req.body;
+  const agendaId = req.query.agendaId as string;
+  let { name } = req.body;
 
-  if (isRegularUser(loggedUser)) {
-    ownerId = loggedUser.id;
-  } else {
-    const user = await prismadb.user.findUnique({
-      where: {
-        id: ownerId,
-      },
-    });
-
-    if (!user) {
-      return res
-        .status(403)
-        .json({ error: "The provided userId does not exist." });
-    }
-
-    if (isManagerUser(loggedUser)) {
-      if (!isRegularUser(user) && user.id !== loggedUser.id) {
-        return res
-          .status(403)
-          .json({ error: "You can only create agendas for regular users." });
-      }
-    }
-  }
-
-  const newAgenda = await prismadb.agenda.create({
-    data: {
-      name,
-      timezone,
-      owner: {
-        connect: {
-          id: ownerId,
-        },
-      },
+  const agenda = await prismadb.agenda.findUnique({
+    where: {
+      id: agendaId,
     },
     include: {
-      owner: {
+      tasks: {
         select: {
+          id: true,
           name: true,
         },
       },
     },
   });
 
-  return res.status(201).json({ agenda: newAgenda });
+  if (!agenda) {
+    return res.status(404).json({ error: "'agendaId' does not exist." });
+  }
+
+  if (isRegularUser(loggedUser)) {
+    if (agenda.ownerId !== loggedUser.id) {
+      return res.status(403).json({ error: "User cannot access this agenda." });
+    }
+  } else {
+    const user = await prismadb.user.findUnique({
+      where: {
+        id: agenda.ownerId,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Invalid agenda." });
+    }
+
+    if (isManagerUser(loggedUser)) {
+      if (!isRegularUser(user) && user.id !== loggedUser.id) {
+        return res
+          .status(403)
+          .json({ error: "User cannot access this agenda." });
+      }
+    }
+  }
+
+  const newTask = await prismadb.task.create({
+    data: {
+      name,
+      agenda: {
+        connect: {
+          id: agendaId,
+        },
+      },
+    },
+  });
+
+  return res.status(201).json({ task: newTask });
 };
 
 export default handler;

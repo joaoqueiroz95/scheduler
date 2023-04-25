@@ -27,10 +27,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   const loggedUser = req.user as User;
 
-  if (!loggedUser) {
-    return res.status(401).json({ error: "Unauthenticated" });
-  }
-
   const whereQuery = isManagerUser(loggedUser)
     ? {
         role: Role.REGULAR,
