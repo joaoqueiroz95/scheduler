@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import Navbar from "@/components/Navbar";
@@ -9,8 +9,9 @@ import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import useAgenda from "@/hooks/useAgenda";
 import { addTask, deleteTask, editTask } from "@/service/task";
+import { editAgenda } from "@/service/agenda";
 
-const TodoList = () => {
+const Agenda = () => {
   const router = useRouter();
   const agendaId = router.query.id as string;
   const { data, mutate: mutateAgenda } = useAgenda(agendaId);
@@ -18,6 +19,7 @@ const TodoList = () => {
   const [task, setTask] = useState("");
   const [taskId, setTaskId] = useState("");
   const [isEdit, setIsEdit] = useState(false);
+  const [agendaTitle, setAgendaTitle] = useState("");
 
   let agenda: IAgenda | undefined;
 
@@ -26,6 +28,32 @@ const TodoList = () => {
   } else {
     agenda = data;
   }
+
+  useEffect(() => {
+    setAgendaTitle(agenda?.name ?? "");
+  }, [agenda?.name]);
+
+  useEffect(() => {
+    const func = async () => {
+      if (agenda?.name !== agendaTitle) {
+        await editAgenda(agendaId, { name: agendaTitle });
+        mutateAgenda();
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      func();
+    }, 1000);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [agendaTitle]);
+
+  const handleTitleChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setAgendaTitle(event.currentTarget.value);
+  };
 
   const handleTaskChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTask(event.currentTarget.value);
@@ -73,7 +101,12 @@ const TodoList = () => {
       <Navbar />
       <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="mb-4">
-          <h1 className="text-3xl font-bold mb-2">{agenda?.name}</h1>
+          <input
+            type="text"
+            value={agendaTitle}
+            onChange={handleTitleChange}
+            className="text-3xl leading-none font-bold outline-none mb-8"
+          />
           <div className="flex">
             <input
               type="text"
@@ -94,7 +127,7 @@ const TodoList = () => {
           {agenda &&
             agenda.tasks.map((task) => (
               <li
-                id={task.id}
+                key={task.id}
                 className="py-4 flex items-center justify-between gap-6"
               >
                 <span className="font-medium flex-1">{task.name}</span>
@@ -132,4 +165,4 @@ export async function getServerSideProps(context: NextPageContext) {
   };
 }
 
-export default TodoList;
+export default Agenda;

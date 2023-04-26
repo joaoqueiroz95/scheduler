@@ -8,6 +8,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "GET") {
       return await checkAuth(handleGet)(req, res);
+    } else if (req.method === "PATCH") {
+      return await checkAuth(handlePatch)(req, res);
     }
 
     return res.status(405).end();
@@ -36,7 +38,7 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!agenda) {
-    return res.status(404).json({ error: "'agendaId' does not exist." });
+    return res.status(404).json({ error: "agenda does not exist." });
   }
 
   if (isRegularUser(loggedUser)) {
@@ -64,6 +66,58 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   return res.status(200).json(agenda);
+};
+
+// PATCH
+const handlePatch = async (req: NextApiRequest, res: NextApiResponse) => {
+  const loggedUser = req.user as User;
+  const agendaId = req.query.agendaId as string;
+  const { name } = req.body;
+
+  const agenda = await prismadb.agenda.findUnique({
+    where: {
+      id: agendaId,
+    },
+  });
+
+  if (!agenda) {
+    return res.status(404).json({ error: "agenda does not exist." });
+  }
+
+  if (isRegularUser(loggedUser)) {
+    if (agenda.ownerId !== loggedUser.id) {
+      return res.status(403).json({ error: "User cannot access this agenda." });
+    }
+  } else {
+    const user = await prismadb.user.findUnique({
+      where: {
+        id: agenda.ownerId,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Invalid agenda." });
+    }
+
+    if (isManagerUser(loggedUser)) {
+      if (!isRegularUser(user) && user.id !== loggedUser.id) {
+        return res
+          .status(403)
+          .json({ error: "User cannot access this agenda." });
+      }
+    }
+  }
+
+  const editedAgenda = await prismadb.agenda.update({
+    where: {
+      id: agendaId,
+    },
+    data: {
+      name,
+    },
+  });
+
+  return res.status(200).json(editedAgenda);
 };
 
 export default handler;

@@ -25,7 +25,7 @@ const AgendaOverviewCard: React.FC<IProps> = ({ agenda }) => {
 
   const tasksList = (agenda: IAgenda) => {
     if (agenda.tasks.length <= MAX_DISPLAYED_TASKS) {
-      return agenda.tasks.map((task) => <li id={task.id}>{task.name}</li>);
+      return agenda.tasks.map((task) => <li key={task.id}>{task.name}</li>);
     }
 
     return [

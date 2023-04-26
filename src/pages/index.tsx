@@ -19,7 +19,7 @@ export default function Home() {
       <Navbar />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 m-8">
         {agendas.agendas.map((agenda) => (
-          <AgendaOverviewCard agenda={agenda} />
+          <AgendaOverviewCard key={agenda.id} agenda={agenda} />
         ))}
       </div>
     </>
