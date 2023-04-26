@@ -11,7 +11,6 @@ import { addTask, deleteTask, editTask } from "@/service/task";
 import { deleteAgenda, editAgenda } from "@/service/agenda";
 import DeleteAgendaModal from "@/components/DeleteAgendaModal";
 import { Session } from "next-auth";
-import { isRegularUser } from "@/libs/role";
 import { Role, User } from "@prisma/client";
 import useUsers from "@/hooks/useUserList";
 
@@ -155,7 +154,9 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
               className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
             >
               {users.map((user) => (
-                <option value={user.id}>{user.username}</option>
+                <option key={user.id} value={user.id}>
+                  {user.username}
+                </option>
               ))}
             </select>
           </div>

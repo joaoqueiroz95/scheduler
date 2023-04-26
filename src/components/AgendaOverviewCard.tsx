@@ -42,7 +42,8 @@ const AgendaOverviewCard: React.FC<IProps> = ({ agenda }) => {
       onClick={handleClickAgenda}
     >
       <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">{agenda.name}</h2>
+        <h2 className="text-2xl font-bold">{agenda.name}</h2>
+        <div className="font-light mb-4">owner: {agenda.owner.name}</div>
         <ul className="list-disc ml-6 mb-4">{tasksList(agenda)}</ul>
       </div>
     </div>

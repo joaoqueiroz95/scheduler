@@ -29,7 +29,14 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const whereQuery = isManagerUser(loggedUser)
     ? {
-        role: Role.REGULAR,
+        OR: [
+          {
+            id: loggedUser.id,
+          },
+          {
+            role: Role.REGULAR,
+          },
+        ],
       }
     : {};
 
