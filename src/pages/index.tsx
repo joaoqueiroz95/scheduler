@@ -1,26 +1,33 @@
 import AgendaOverviewCard from "@/components/AgendaOverviewCard";
 import Navbar from "@/components/Navbar";
+import SearchBar from "@/components/SearchBar";
 import useAgendas from "@/hooks/useAgendaList";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
-import Head from "next/head";
+import { useState } from "react";
 
 export default function Home() {
-  const { data: agendas } = useAgendas();
+  const [searchValue, setSearchValue] = useState("");
+  const { data: agendas } = useAgendas(searchValue);
+
+  const handleSeachBarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setSearchValue(event.currentTarget.value);
+  };
 
   return (
     <>
-      <Head>
-        <title>Scheduler</title>
-        <meta name="description" content="2 weeks app challenge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <Navbar />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 m-8">
-        {agendas.agendas.map((agenda) => (
-          <AgendaOverviewCard key={agenda.id} agenda={agenda} />
-        ))}
+      <div className="m-8">
+        <SearchBar value={searchValue} onChange={handleSeachBarChange} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1 mb-4">
+          {agendas.agendas.map((agenda) => (
+            <AgendaOverviewCard key={agenda.id} agenda={agenda} />
+          ))}
+        </div>
+        <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+          Create Agenda
+        </button>
       </div>
     </>
   );

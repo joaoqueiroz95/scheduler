@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
-import { Role, User } from "@prisma/client";
+import { Prisma, Role, User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { isManagerUser, isRegularUser } from "@/libs/role";
 
@@ -21,12 +21,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 // GET
 const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   const loggedUser = req.user as User;
+  const query = req.query.query as string | undefined;
 
   if (!loggedUser) {
     return res.status(401).json({ error: "Unauthenticated" });
   }
 
-  let whereQuery = {};
+  let whereQuery: Prisma.AgendaWhereInput = {};
   if (isRegularUser(loggedUser)) {
     whereQuery = {
       ownerId: loggedUser.id,
@@ -44,6 +45,18 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       ],
     };
+  }
+
+  if (query) {
+    let orQuery: any[] = [];
+    if (whereQuery.OR) {
+      orQuery = Object.values(whereQuery.OR);
+    }
+
+    whereQuery.OR = orQuery.concat(
+      { name: { contains: query, mode: "insensitive" } },
+      { owner: { name: { contains: query, mode: "insensitive" } } }
+    );
   }
 
   const agendas = await prismadb.agenda.findMany({

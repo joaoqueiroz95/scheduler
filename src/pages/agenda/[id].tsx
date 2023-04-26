@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import Navbar from "@/components/Navbar";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { IAgenda } from "@/types/agenda";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import useAgenda from "@/hooks/useAgenda";
 import { addTask, deleteTask, editTask } from "@/service/task";
-import { editAgenda } from "@/service/agenda";
+import { deleteAgenda, editAgenda } from "@/service/agenda";
+import DeleteAgendaModal from "@/components/DeleteAgendaModal";
 
 const Agenda = () => {
   const router = useRouter();
@@ -20,6 +20,8 @@ const Agenda = () => {
   const [taskId, setTaskId] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   const [agendaTitle, setAgendaTitle] = useState("");
+
+  const [openDeleteAgendaModal, setOpenDeleteAgendaModal] = useState(false);
 
   let agenda: IAgenda | undefined;
 
@@ -48,6 +50,19 @@ const Agenda = () => {
       clearTimeout(timeoutId);
     };
   }, [agendaTitle]);
+
+  const handleDeleteAgendaModal = async () => {
+    await deleteAgenda(agendaId);
+    setOpenDeleteAgendaModal(false);
+    router.push("/");
+  };
+  const handleCloseAgendaModal = () => {
+    setOpenDeleteAgendaModal(false);
+  };
+
+  const handleDeleteAgenda = () => {
+    setOpenDeleteAgendaModal(true);
+  };
 
   const handleTitleChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -92,12 +107,6 @@ const Agenda = () => {
 
   return (
     <>
-      <Head>
-        <title>Scheduler</title>
-        <meta name="description" content="2 weeks app challenge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <Navbar />
       <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="mb-4">
@@ -123,7 +132,7 @@ const Agenda = () => {
             </button>
           </div>
         </div>
-        <ul className="divide-y divide-gray-200">
+        <ul className="divide-y divide-gray-200 mb-4">
           {agenda &&
             agenda.tasks.map((task) => (
               <li
@@ -143,7 +152,18 @@ const Agenda = () => {
               </li>
             ))}
         </ul>
+        <button
+          onClick={handleDeleteAgenda}
+          className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md"
+        >
+          Delete
+        </button>
       </div>
+      <DeleteAgendaModal
+        open={openDeleteAgendaModal}
+        onCancel={handleCloseAgendaModal}
+        onDelete={handleDeleteAgendaModal}
+      />
     </>
   );
 };
