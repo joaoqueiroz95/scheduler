@@ -11,7 +11,8 @@ export const createAgenda = async (data: ICreateAgendaBody) => {
 };
 
 interface IEditAgendaBody {
-  name: string;
+  name?: string;
+  ownerId?: string;
 }
 
 export const editAgenda = async (agendaId: string, data: IEditAgendaBody) => {
