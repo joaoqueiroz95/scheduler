@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import Navbar from "@/components/Navbar";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -7,7 +8,7 @@ import { IAgenda } from "@/types/agenda";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import useAgenda from "@/hooks/useAgenda";
-import { addTask, deleteTask } from "@/service/task";
+import { addTask, deleteTask, editTask } from "@/service/task";
 
 const TodoList = () => {
   const router = useRouter();
@@ -15,6 +16,8 @@ const TodoList = () => {
   const { data, mutate: mutateAgenda } = useAgenda(agendaId);
 
   const [task, setTask] = useState("");
+  const [taskId, setTaskId] = useState("");
+  const [isEdit, setIsEdit] = useState(false);
 
   let agenda: IAgenda | undefined;
 
@@ -30,12 +33,33 @@ const TodoList = () => {
 
   const handleAddTask = async () => {
     await addTask(agendaId, { name: task });
+    setTask("");
+    mutateAgenda();
+  };
+
+  const handleEditTask = async () => {
+    await editTask(agendaId, taskId, { name: task });
+    setIsEdit(false);
+    setTask("");
     mutateAgenda();
   };
 
   const handleDeleteTask = (taskId: string) => async () => {
     await deleteTask(agendaId, taskId);
     mutateAgenda();
+  };
+
+  const handleClickEditTask = (taskId: string) => async () => {
+    const task = agenda?.tasks.find((task) => task.id === taskId);
+    if (task) {
+      if (!isEdit) {
+        setTask(task.name);
+        setTaskId(task.id);
+      } else {
+        setTask("");
+      }
+      setIsEdit((val) => !val);
+    }
   };
 
   return (
@@ -59,10 +83,10 @@ const TodoList = () => {
               value={task}
             />
             <button
-              onClick={handleAddTask}
+              onClick={isEdit ? handleEditTask : handleAddTask}
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
             >
-              Add Task
+              {isEdit ? "Edit" : "Add"}
             </button>
           </div>
         </div>
@@ -71,12 +95,15 @@ const TodoList = () => {
             agenda.tasks.map((task) => (
               <li
                 id={task.id}
-                className="py-4 flex items-center justify-between"
+                className="py-4 flex items-center justify-between gap-6"
               >
-                <span className="font-medium">{task.name}</span>
-                <button className="text-red-500 hover:text-red-600">
+                <span className="font-medium flex-1">{task.name}</span>
+                <button onClick={handleClickEditTask(task.id)}>
+                  <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
+                </button>
+                <button>
                   <TrashIcon
-                    className="h-6 w-6"
+                    className="h-6 w-6 text-red-500 hover:text-red-600"
                     onClick={handleDeleteTask(task.id)}
                   />
                 </button>
