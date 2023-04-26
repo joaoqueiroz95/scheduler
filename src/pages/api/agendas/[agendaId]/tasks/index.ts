@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
-import { Role, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { isManagerUser, isRegularUser } from "@/libs/role";
 

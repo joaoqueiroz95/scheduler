@@ -2,25 +2,30 @@ import React from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import Navbar from "@/components/Navbar";
 import Head from "next/head";
-import { useParams } from "react-router-dom";
 import { useRouter } from "next/router";
 import { IAgenda } from "@/types/agenda";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import useAgenda from "@/hooks/useAgenda";
+import { deleteTask } from "@/service/task";
 
 const TodoList = () => {
   const router = useRouter();
-  const id = router.query.id as string;
+  const agendaId = router.query.id as string;
+  const { data, mutate } = useAgenda(agendaId);
 
   let agenda: IAgenda | undefined;
 
   if (router.query.agenda) {
     agenda = JSON.parse(router.query.agenda as string);
   } else {
-    const { data } = useAgenda(id);
     agenda = data;
   }
+
+  const handleDeleteTask = (taskId: string) => async () => {
+    await deleteTask(agendaId, taskId);
+    mutate();
+  };
 
   return (
     <>
@@ -54,7 +59,10 @@ const TodoList = () => {
               >
                 <span className="font-medium">{task.name}</span>
                 <button className="text-red-500 hover:text-red-600">
-                  <TrashIcon className="h-6 w-6" />
+                  <TrashIcon
+                    className="h-6 w-6"
+                    onClick={handleDeleteTask(task.id)}
+                  />
                 </button>
               </li>
             ))}

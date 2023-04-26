@@ -3,7 +3,7 @@ import fetcher from "@/libs/fetcher";
 import { IAgenda } from "@/types/agenda";
 
 const useAgenda = (id: string) => {
-  let { data, error, isLoading } = useSwr<IAgenda>(
+  let { data, error, isLoading, mutate } = useSwr<IAgenda>(
     `/api/agendas/${id}`,
     fetcher
   );
@@ -12,6 +12,7 @@ const useAgenda = (id: string) => {
     data,
     error,
     isLoading,
+    mutate,
   };
 };
 
