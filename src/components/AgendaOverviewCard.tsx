@@ -31,8 +31,10 @@ const AgendaOverviewCard: React.FC<IProps> = ({ agenda }) => {
     return [
       ...agenda.tasks
         .slice(0, MAX_DISPLAYED_TASKS - 1)
-        .map((task) => <li id={task.id}>{task.name}</li>),
-      <li>{agenda.tasks.length - MAX_DISPLAYED_TASKS + 1} more tasks</li>,
+        .map((task) => <li key={task.id}>{task.name}</li>),
+      <li key="more">
+        {agenda.tasks.length - MAX_DISPLAYED_TASKS + 1} more tasks
+      </li>,
     ];
   };
 
