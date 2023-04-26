@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import Navbar from "@/components/Navbar";
 import Head from "next/head";
@@ -7,12 +7,14 @@ import { IAgenda } from "@/types/agenda";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import useAgenda from "@/hooks/useAgenda";
-import { deleteTask } from "@/service/task";
+import { addTask, deleteTask } from "@/service/task";
 
 const TodoList = () => {
   const router = useRouter();
   const agendaId = router.query.id as string;
-  const { data, mutate } = useAgenda(agendaId);
+  const { data, mutate: mutateAgenda } = useAgenda(agendaId);
+
+  const [task, setTask] = useState("");
 
   let agenda: IAgenda | undefined;
 
@@ -22,9 +24,18 @@ const TodoList = () => {
     agenda = data;
   }
 
+  const handleTaskChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTask(event.currentTarget.value);
+  };
+
+  const handleAddTask = async () => {
+    await addTask(agendaId, { name: task });
+    mutateAgenda();
+  };
+
   const handleDeleteTask = (taskId: string) => async () => {
     await deleteTask(agendaId, taskId);
-    mutate();
+    mutateAgenda();
   };
 
   return (
@@ -44,8 +55,13 @@ const TodoList = () => {
               type="text"
               className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
               placeholder="Enter a task"
+              onChange={handleTaskChange}
+              value={task}
             />
-            <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">
+            <button
+              onClick={handleAddTask}
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md"
+            >
               Add Task
             </button>
           </div>
