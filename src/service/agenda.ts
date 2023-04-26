@@ -1,5 +1,14 @@
-import fetcher from "@/libs/fetcher";
 import axios from "axios";
+
+interface ICreateAgendaBody {
+  name: string;
+  timezone?: string;
+  ownerId?: string;
+}
+
+export const createAgenda = async (data: ICreateAgendaBody) => {
+  return axios.post(`/api/agendas`, data);
+};
 
 interface IEditAgendaBody {
   name: string;

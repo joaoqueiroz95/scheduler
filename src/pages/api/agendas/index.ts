@@ -125,7 +125,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  return res.status(201).json({ agenda: newAgenda });
+  return res.status(201).json(newAgenda);
 };
 
 export default handler;

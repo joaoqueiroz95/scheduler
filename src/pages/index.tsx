@@ -4,15 +4,21 @@ import SearchBar from "@/components/SearchBar";
 import useAgendas from "@/hooks/useAgendaList";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
-export default function Home() {
+const Home = () => {
   const [searchValue, setSearchValue] = useState("");
+  const router = useRouter();
   const { data: agendas } = useAgendas(searchValue);
 
   const handleSeachBarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setSearchValue(event.currentTarget.value);
+  };
+
+  const handleCreateAgenda = () => {
+    router.push("/agenda/create");
   };
 
   return (
@@ -25,13 +31,16 @@ export default function Home() {
             <AgendaOverviewCard key={agenda.id} agenda={agenda} />
           ))}
         </div>
-        <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+        <button
+          onClick={handleCreateAgenda}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+        >
           Create Agenda
         </button>
       </div>
     </>
   );
-}
+};
 
 export async function getServerSideProps(context: NextPageContext) {
   const session = await getSession(context);
@@ -49,3 +58,5 @@ export async function getServerSideProps(context: NextPageContext) {
     props: {},
   };
 }
+
+export default Home;
