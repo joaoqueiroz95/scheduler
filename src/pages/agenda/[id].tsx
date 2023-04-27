@@ -173,7 +173,8 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
           type="text"
           value={agendaTitle}
           onChange={handleTitleChange}
-          className="text-3xl leading-none font-bold outline-none mb-8"
+          className="text-3xl leading-none font-bold outline-none mb-8 rounded-md border-2 border-gray-300"
+          placeholder="Agenda Title"
         />
         {currSession.user.role !== Role.REGULAR && (
           <div className="mb-4 w-52">
@@ -183,7 +184,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
             <select
               value={owner}
               onChange={handleOwnerChange}
-              className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
+              className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
             >
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
@@ -200,7 +201,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
           <select
             value={timezone}
             onChange={handleTimezoneChange}
-            className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
+            className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
           >
             {TIMEZONES.map((timezone) => (
               <option key={timezone.id} value={timezone.id}>

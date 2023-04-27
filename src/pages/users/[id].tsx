@@ -8,13 +8,19 @@ import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
+const MY_PROFILE = "my-profile";
+
 interface IProps {
   currSession: Session;
 }
 
 const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const router = useRouter();
-  const userId = router.query.id as string;
+  const id = router.query.id as string;
+  const userId = useMemo(
+    () => (id === MY_PROFILE ? currSession.user.id : id),
+    [id]
+  );
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -61,7 +67,9 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
     }
     await editUser(userId, data);
 
-    router.push("/users");
+    if (id !== MY_PROFILE) {
+      router.push("/users");
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import ProfileAvatar from "./ProfileAvatar";
 
 interface IProps {
   currSession: Session;
@@ -25,12 +26,13 @@ const Navbar: React.FC<IProps> = ({ currSession }) => {
           )}
         </div>
         <div className="flex-shrink-0">
-          <button
+          {/* <button
             className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
             onClick={logout}
           >
             Logout
-          </button>
+          </button> */}
+          <ProfileAvatar currSession={currSession} />
         </div>
       </div>
     </nav>

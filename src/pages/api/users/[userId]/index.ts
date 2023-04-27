@@ -10,10 +10,7 @@ import bcrypt from "bcrypt";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "GET") {
-      return await checkAuth(checkRoles(handleGet, [Role.MANAGER, Role.ADMIN]))(
-        req,
-        res
-      );
+      return await checkAuth(handleGet)(req, res);
     } else if (req.method === "PATCH") {
       return await checkAuth(handlePatch)(req, res);
     } else if (req.method === "DELETE") {
@@ -41,12 +38,14 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(404).json({ error: "User does not exist." });
   }
 
-  if (
-    isManagerUser(loggedUser) &&
-    !isRegularUser(user) &&
-    user.id !== loggedUser.id
-  ) {
-    return res.status(403).json({ error: "No permission to retrieve user." });
+  if (isRegularUser(loggedUser)) {
+    if (user.id !== loggedUser.id) {
+      return res.status(403).json({ error: "No permission to retrieve user." });
+    }
+  } else if (isManagerUser(loggedUser)) {
+    if (!isRegularUser(user) && user.id !== loggedUser.id) {
+      return res.status(403).json({ error: "No permission to retrieve user." });
+    }
   }
 
   return res.status(200).json(_.pick(user, "id", "username", "name", "role"));
