@@ -6,6 +6,7 @@ import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 interface IProps {
   currSession: Session;
@@ -41,6 +42,8 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const handleCreateUser = async () => {
     const data: ICreateUserBody = { name, username, password, role };
     await createUser(data);
+
+    toast.success("User created.");
 
     router.push("/users");
   };

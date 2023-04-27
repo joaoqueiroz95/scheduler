@@ -14,6 +14,7 @@ import { Role, User } from "@prisma/client";
 import useUsers from "@/hooks/useUserList";
 import { getTimeInfo } from "@/libs/time";
 import { TIMEZONES } from "@/constants/timezone";
+import toast from "react-hot-toast";
 
 interface IProps {
   currSession: Session;
@@ -114,6 +115,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   const handleDeleteAgendaModal = async () => {
     await deleteAgenda(agendaId);
     setOpenDeleteAgendaModal(false);
+    toast.success("Agenda deleted.");
     router.push("/");
   };
   const handleCloseAgendaModal = () => {

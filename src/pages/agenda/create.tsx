@@ -12,6 +12,7 @@ import { Role, User } from "@prisma/client";
 import useUsers from "@/hooks/useUserList";
 import { TIMEZONES } from "@/constants/timezone";
 import { getBrowserTimezone } from "@/libs/time";
+import toast from "react-hot-toast";
 
 interface IProps {
   currSession: Session;
@@ -124,6 +125,8 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
     for (const task of tasks) {
       await addTask(agenda.data.id, { name: task.name });
     }
+
+    toast.success("Agenda created.");
 
     router.push(`/agenda/${agenda.data.id}`);
   };

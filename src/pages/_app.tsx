@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import { Toaster } from "react-hot-toast";
 
 export default function App({
   Component,
@@ -16,6 +17,7 @@ export default function App({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Component {...pageProps} />
+      <Toaster />
     </SessionProvider>
   );
 }

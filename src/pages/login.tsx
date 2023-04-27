@@ -1,24 +1,29 @@
 import { useCallback, useState } from "react";
 import { signIn } from "next-auth/react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const router = useRouter();
+
   const login = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      try {
-        await signIn("credentials", {
-          username,
-          password,
-          redirect: true,
-          callbackUrl: "/",
-        });
-      } catch (error) {
-        console.log(error);
-      }
+      signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      }).then((res) => {
+        if (res?.ok) {
+          router.push("/");
+        } else if (res?.error) {
+          toast.error(res.error);
+        }
+      });
     },
     [username, password]
   );

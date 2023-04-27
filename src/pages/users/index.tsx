@@ -9,6 +9,7 @@ import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface IProps {
   currSession: Session;
@@ -25,6 +26,7 @@ const Users: React.FC<IProps> = ({ currSession }) => {
 
   const handleDeleteUserModal = async () => {
     await deleteUser(userToDelete);
+    toast.success("User deleted.");
     setOpenDeleteUserModal(false);
     mutateUsers();
   };

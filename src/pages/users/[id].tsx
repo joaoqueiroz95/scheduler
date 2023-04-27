@@ -7,6 +7,7 @@ import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 
 const MY_PROFILE = "my-profile";
 
@@ -66,6 +67,8 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
       data.password = password;
     }
     await editUser(userId, data);
+
+    toast.success("User edited.");
 
     if (id !== MY_PROFILE) {
       router.push("/users");

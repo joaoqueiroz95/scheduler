@@ -1,11 +1,9 @@
 import { useCallback, useState } from "react";
-import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 const SignUp = () => {
-  const { data: session } = useSession();
-
   const router = useRouter();
 
   const [fullName, setFullName] = useState("");
@@ -25,7 +23,7 @@ const SignUp = () => {
 
         router.push("/login");
       } catch (error) {
-        console.log(error);
+        toast.error((error as any).response.data.error);
       }
     },
     [username, password]
