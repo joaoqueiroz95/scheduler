@@ -10,6 +10,7 @@ import { createAgenda } from "@/service/agenda";
 import { addTask } from "@/service/task";
 import { Role, User } from "@prisma/client";
 import useUsers from "@/hooks/useUserList";
+import { TIMEZONES } from "@/constants/timezone";
 
 interface IProps {
   currSession: Session;
@@ -25,6 +26,8 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   const [agendaTitle, setAgendaTitle] = useState("");
   const [owner, setOwner] = useState(currSession.user.id);
 
+  const [timezone, setTimezone] = useState("UTC");
+
   const [nextId, setNextId] = useState(0);
 
   let users: User[] = [];
@@ -34,6 +37,13 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
       users = data?.users;
     }
   }
+
+  const handleTimezoneChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newTimezone = event.currentTarget.value;
+    setTimezone(newTimezone);
+  };
 
   const handleOwnerChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -95,6 +105,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
     const agenda = await createAgenda({
       name: agendaTitle,
       ownerId: owner,
+      timezone,
     });
 
     if (!agenda?.data) {
@@ -136,6 +147,22 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
             </select>
           </div>
         )}
+        <div className="mb-4 w-52">
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Timezone
+          </label>
+          <select
+            value={timezone}
+            onChange={handleTimezoneChange}
+            className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
+          >
+            {TIMEZONES.map((timezone) => (
+              <option key={timezone.id} value={timezone.id}>
+                {timezone.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="flex">
           <input
             type="text"

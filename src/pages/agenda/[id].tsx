@@ -38,12 +38,12 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   const [targetTime, setTargetTime] = useState("");
   const [timeDiff, setTimeDiff] = useState(0);
 
-  let agenda: IAgenda | undefined;
-  if (router.query.agenda) {
+  const agenda = data;
+  /* if (router.query.agenda) {
     agenda = JSON.parse(router.query.agenda as string);
   } else {
     agenda = data;
-  }
+  } */
 
   useEffect(() => {
     const timer = setInterval(() => {

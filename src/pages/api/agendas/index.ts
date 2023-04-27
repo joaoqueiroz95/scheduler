@@ -56,8 +56,6 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
     };
   }
 
-  console.log(whereQuery);
-
   const agendas = await prismadb.agenda.findMany({
     where: whereQuery,
     include: {
