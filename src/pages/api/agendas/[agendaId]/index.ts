@@ -74,7 +74,7 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
 const handlePatch = async (req: NextApiRequest, res: NextApiResponse) => {
   const loggedUser = req.user as User;
   const agendaId = req.query.agendaId as string;
-  const { name, ownerId } = req.body;
+  const { name, ownerId, timezone } = req.body;
 
   const agenda = await prismadb.agenda.findUnique({
     where: {
@@ -113,6 +113,9 @@ const handlePatch = async (req: NextApiRequest, res: NextApiResponse) => {
   const dataQuery: any = {};
   if (name) {
     dataQuery.name = name;
+  }
+  if (timezone) {
+    dataQuery.timezone = timezone;
   }
   if (ownerId) {
     dataQuery.owner = {

@@ -13,6 +13,7 @@ export const createAgenda = async (data: ICreateAgendaBody) => {
 interface IEditAgendaBody {
   name?: string;
   ownerId?: string;
+  timezone?: string;
 }
 
 export const editAgenda = async (agendaId: string, data: IEditAgendaBody) => {

@@ -48,16 +48,15 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (query) {
-    let orQuery: any[] = [];
-    if (whereQuery.OR) {
-      orQuery = Object.values(whereQuery.OR);
-    }
-
-    whereQuery.OR = orQuery.concat(
-      { name: { contains: query, mode: "insensitive" } },
-      { owner: { name: { contains: query, mode: "insensitive" } } }
-    );
+    whereQuery.AND = {
+      OR: [
+        { name: { contains: query, mode: "insensitive" } },
+        { owner: { name: { contains: query, mode: "insensitive" } } },
+      ],
+    };
   }
+
+  console.log(whereQuery);
 
   const agendas = await prismadb.agenda.findMany({
     where: whereQuery,

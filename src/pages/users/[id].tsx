@@ -92,6 +92,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             value={username}
             onChange={handleUsernameChange}
             required
+            disabled={currSession.user.id === userId}
           />
         </div>
         <div className="mb-6">
@@ -115,6 +116,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             value={role}
             onChange={handleRoleChange}
             className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
+            disabled={currSession.user.id === userId}
           >
             {possibleRoles.map((role) => (
               <option key={role} value={role}>

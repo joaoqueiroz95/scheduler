@@ -1,3 +1,4 @@
+import { getTimeInfo } from "@/libs/time";
 import { IAgenda } from "@/types/agenda";
 import { useRouter } from "next/router";
 import React from "react";
@@ -38,6 +39,8 @@ const AgendaOverviewCard: React.FC<IProps> = ({ agenda }) => {
     ];
   };
 
+  const { timeDiff } = getTimeInfo(agenda.timezone);
+
   return (
     <div
       className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer"
@@ -45,7 +48,8 @@ const AgendaOverviewCard: React.FC<IProps> = ({ agenda }) => {
     >
       <div className="p-6">
         <h2 className="text-2xl font-bold">{agenda.name}</h2>
-        <div className="font-light mb-4">owner: {agenda.owner.name}</div>
+        <div className="font-light">owner: {agenda.owner.name}</div>
+        <div className="font-light mb-4">Time offset (hours): {timeDiff}</div>
         <ul className="list-disc ml-6 mb-4">{tasksList(agenda)}</ul>
       </div>
     </div>

@@ -13,6 +13,8 @@ import DeleteAgendaModal from "@/components/DeleteAgendaModal";
 import { Session } from "next-auth";
 import { Role, User } from "@prisma/client";
 import useUsers from "@/hooks/useUserList";
+import { getTimeInfo } from "@/libs/time";
+import { TIMEZONES } from "@/constants/timezone";
 
 interface IProps {
   currSession: Session;
@@ -31,12 +33,30 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
 
   const [openDeleteAgendaModal, setOpenDeleteAgendaModal] = useState(false);
 
+  const [timezone, setTimezone] = useState("UTC");
+  const [browserTime, setBrowserTime] = useState("");
+  const [targetTime, setTargetTime] = useState("");
+  const [timeDiff, setTimeDiff] = useState(0);
+
   let agenda: IAgenda | undefined;
   if (router.query.agenda) {
     agenda = JSON.parse(router.query.agenda as string);
   } else {
     agenda = data;
   }
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const agendaTimezone = agenda ? agenda.timezone : "UTC";
+      const { browserTime, targetTime, timeDiff } = getTimeInfo(agendaTimezone);
+
+      setBrowserTime(browserTime);
+      setTargetTime(targetTime);
+      setTimeDiff(timeDiff);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [agenda?.timezone]);
 
   let users: User[] = [];
   if (currSession.user.role !== Role.REGULAR) {
@@ -55,6 +75,10 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   }, [agenda?.name]);
 
   useEffect(() => {
+    setTimezone(agenda?.timezone ?? "");
+  }, [agenda?.timezone]);
+
+  useEffect(() => {
     const func = async () => {
       if (agenda?.name !== agendaTitle) {
         await editAgenda(agendaId, { name: agendaTitle });
@@ -69,6 +93,15 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
       clearTimeout(timeoutId);
     };
   }, [agendaTitle]);
+
+  const handleTimezoneChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newTimezone = event.currentTarget.value;
+    setTimezone(newTimezone);
+    await editAgenda(agendaId, { timezone: newTimezone });
+    mutateAgenda();
+  };
 
   const handleOwnerChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -161,6 +194,26 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
             </select>
           </div>
         )}
+        <div className="mb-4 w-52">
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Timezone
+          </label>
+          <select
+            value={timezone}
+            onChange={handleTimezoneChange}
+            className="border-2 border-gray-300 py-2 px-4 w-full rounded-md mr-2"
+          >
+            {TIMEZONES.map((timezone) => (
+              <option key={timezone.id} value={timezone.id}>
+                {timezone.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="font-light mb-4">
+          Agenda Time: {targetTime} | Local Time: {browserTime} | Time offset
+          (hours): {timeDiff}
+        </div>
         <div className="flex mb-4">
           <input
             type="text"
