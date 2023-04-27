@@ -49,51 +49,53 @@ const Users: React.FC<IProps> = ({ currSession }) => {
     <>
       <Navbar currSession={currSession} />
       <div className="relative overflow-x-auto m-8">
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-4">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Username
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Name
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Role
-              </th>
-              <th />
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {users &&
-              users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                >
-                  <th
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+        <div className="max-h-140 overflow-y-auto mb-4">
+          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" className="px-6 py-3">
+                  Username
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Name
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Role
+                </th>
+                <th />
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {users &&
+                users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                   >
-                    {user.username}
-                  </th>
-                  <td className="px-6 py-4">{user.name}</td>
-                  <td className="px-6 py-4">{user.role}</td>
-                  <td className="">
-                    <button onClick={handleEditUser(user.id)}>
-                      <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
-                    </button>
-                  </td>
-                  <td className="">
-                    <button onClick={handleDeleteUser(user.id)}>
-                      <TrashIcon className="h-6 w-6 text-red-500 hover:text-red-600" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      {user.username}
+                    </th>
+                    <td className="px-6 py-4">{user.name}</td>
+                    <td className="px-6 py-4">{user.role}</td>
+                    <td className="">
+                      <button onClick={handleEditUser(user.id)}>
+                        <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
+                      </button>
+                    </td>
+                    <td className="">
+                      <button onClick={handleDeleteUser(user.id)}>
+                        <TrashIcon className="h-6 w-6 text-red-500 hover:text-red-600" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
         {currSession.user.role === Role.ADMIN && (
           <button
             onClick={handleCreateUser}

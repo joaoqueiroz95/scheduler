@@ -11,6 +11,7 @@ import { addTask } from "@/service/task";
 import { Role, User } from "@prisma/client";
 import useUsers from "@/hooks/useUserList";
 import { TIMEZONES } from "@/constants/timezone";
+import { getBrowserTimezone } from "@/libs/time";
 
 interface IProps {
   currSession: Session;
@@ -26,7 +27,15 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   const [agendaTitle, setAgendaTitle] = useState("");
   const [owner, setOwner] = useState(currSession.user.id);
 
-  const [timezone, setTimezone] = useState("UTC");
+  const [timezone, setTimezone] = useState(() => {
+    const browserTimezone = getBrowserTimezone();
+
+    if (TIMEZONES.find((tz) => tz.id === browserTimezone)) {
+      return browserTimezone;
+    }
+
+    return "UTC";
+  });
 
   const [nextId, setNextId] = useState(0);
 
@@ -122,7 +131,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   return (
     <>
       <Navbar currSession={currSession} />
-      <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto p-8 px-4 sm:px-6 lg:px-8">
         <input
           type="text"
           value={agendaTitle}
@@ -130,39 +139,41 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
           className="text-3xl leading-none font-bold outline-none mb-8 rounded-md border-2 border-gray-300"
           placeholder="Agenda Title"
         />
-        {currSession.user.role !== Role.REGULAR && (
-          <div className="mb-4 w-52">
+        <div className="grid gap-6 md:grid-cols-2 mb-4">
+          {currSession.user.role !== Role.REGULAR && (
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Owner
+              </label>
+              <select
+                value={owner}
+                onChange={handleOwnerChange}
+                className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
+              >
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.username}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Owner
+              Timezone
             </label>
             <select
-              value={owner}
-              onChange={handleOwnerChange}
+              value={timezone}
+              onChange={handleTimezoneChange}
               className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
             >
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username}
+              {TIMEZONES.map((timezone) => (
+                <option key={timezone.id} value={timezone.id}>
+                  {timezone.label}
                 </option>
               ))}
             </select>
           </div>
-        )}
-        <div className="mb-4 w-52">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Timezone
-          </label>
-          <select
-            value={timezone}
-            onChange={handleTimezoneChange}
-            className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
-          >
-            {TIMEZONES.map((timezone) => (
-              <option key={timezone.id} value={timezone.id}>
-                {timezone.label}
-              </option>
-            ))}
-          </select>
         </div>
         <div className="flex">
           <input
@@ -179,7 +190,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
             {isEdit ? "Edit" : "Add"}
           </button>
         </div>
-        <ul className="divide-y divide-gray-200 mb-4">
+        <ul className="divide-y divide-gray-200 mb-4 overflow-y-auto max-h-96">
           {tasks.map((task) => (
             <li
               key={task.id}

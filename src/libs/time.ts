@@ -35,3 +35,7 @@ export function getTimeInfo(targetTimezone: string) {
 
   return { browserTime, targetTime, timeDiff };
 }
+
+export function getBrowserTimezone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}

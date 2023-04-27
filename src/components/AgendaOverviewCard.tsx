@@ -43,7 +43,7 @@ const AgendaOverviewCard: React.FC<IProps> = ({ agenda }) => {
 
   return (
     <div
-      className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer"
+      className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer h-56"
       onClick={handleClickAgenda}
     >
       <div className="p-6">

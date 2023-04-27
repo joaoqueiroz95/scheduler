@@ -168,51 +168,53 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   return (
     <>
       <Navbar currSession={currSession} />
-      <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto p-8 px-4 sm:px-6 lg:px-8">
         <input
           type="text"
           value={agendaTitle}
           onChange={handleTitleChange}
-          className="text-3xl leading-none font-bold outline-none mb-8 rounded-md border-2 border-gray-300"
+          className="text-3xl leading-none font-bold outline-none rounded-md border-2 border-gray-300 mb-2"
           placeholder="Agenda Title"
         />
-        {currSession.user.role !== Role.REGULAR && (
-          <div className="mb-4 w-52">
+        <div className="font-light mb-6">
+          Agenda Time: {targetTime} | Local Time: {browserTime} | Time offset
+          (hours): {timeDiff}
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 mb-4">
+          {currSession.user.role !== Role.REGULAR && (
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Owner
+              </label>
+              <select
+                value={owner}
+                onChange={handleOwnerChange}
+                className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
+              >
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.username}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Owner
+              Timezone
             </label>
             <select
-              value={owner}
-              onChange={handleOwnerChange}
+              value={timezone}
+              onChange={handleTimezoneChange}
               className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
             >
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username}
+              {TIMEZONES.map((timezone) => (
+                <option key={timezone.id} value={timezone.id}>
+                  {timezone.label}
                 </option>
               ))}
             </select>
           </div>
-        )}
-        <div className="mb-4 w-52">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Timezone
-          </label>
-          <select
-            value={timezone}
-            onChange={handleTimezoneChange}
-            className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
-          >
-            {TIMEZONES.map((timezone) => (
-              <option key={timezone.id} value={timezone.id}>
-                {timezone.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="font-light mb-4">
-          Agenda Time: {targetTime} | Local Time: {browserTime} | Time offset
-          (hours): {timeDiff}
         </div>
         <div className="flex mb-4">
           <input
@@ -229,7 +231,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
             {isEdit ? "Edit" : "Add"}
           </button>
         </div>
-        <ul className="divide-y divide-gray-200 mb-4">
+        <ul className="divide-y divide-gray-200 mb-4 overflow-y-auto max-h-96">
           {agenda &&
             agenda.tasks.map((task) => (
               <li
