@@ -5,11 +5,16 @@ import { deleteUser } from "@/service/user";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Role } from "@prisma/client";
 import { NextPageContext } from "next";
+import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-const Users = () => {
+interface IProps {
+  currSession: Session;
+}
+
+const Users: React.FC<IProps> = ({ currSession }) => {
   const router = useRouter();
 
   const [openDeleteUserModal, setOpenDeleteUserModal] = useState(false);
@@ -36,11 +41,15 @@ const Users = () => {
     router.push(`/users/${userId}`);
   };
 
+  const handleCreateUser = () => {
+    router.push("/users/create");
+  };
+
   return (
     <>
       <Navbar />
       <div className="relative overflow-x-auto m-8">
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-4">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
@@ -85,6 +94,14 @@ const Users = () => {
               ))}
           </tbody>
         </table>
+        {currSession.user.role === Role.ADMIN && (
+          <button
+            onClick={handleCreateUser}
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+          >
+            Create User
+          </button>
+        )}
       </div>
       <DeleteUserModal
         open={openDeleteUserModal}
@@ -108,7 +125,7 @@ export async function getServerSideProps(context: NextPageContext) {
   }
 
   return {
-    props: {},
+    props: { currSession: session },
   };
 }
 

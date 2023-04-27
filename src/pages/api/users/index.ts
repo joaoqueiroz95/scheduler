@@ -1,10 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
 import bcrypt from "bcrypt";
-import { Role, User } from "@prisma/client";
+import { Prisma, Role, User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { checkRoles } from "@/middlewares/permissions";
-import { isManagerUser } from "@/libs/role";
+import { isAdminUser, isManagerUser } from "@/libs/role";
+import { getLoggedUser } from "@/libs/session";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -55,7 +56,7 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
 
 // POST
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { username, name, password } = req.body;
+  const { username, name, password, role } = req.body;
 
   const existingUser = await prismadb.user.findUnique({
     where: {
@@ -69,12 +70,27 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
+  const dataQuery: Prisma.UserCreateInput = {
+    username,
+    name,
+    password: hashedPassword,
+  };
+
+  const loggedUser = await getLoggedUser(req, res);
+  if (loggedUser) {
+    if (loggedUser.role === Role.ADMIN) {
+      dataQuery.role = role;
+    }
+  } else {
+    if (role && role !== Role.REGULAR) {
+      return res
+        .status(403)
+        .json({ error: "Invalid Role. Can only be 'REGULAR'." });
+    }
+  }
+
   const user = await prismadb.user.create({
-    data: {
-      username,
-      name,
-      password: hashedPassword,
-    },
+    data: dataQuery,
   });
 
   return res.status(201).json(user);
