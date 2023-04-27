@@ -3,11 +3,16 @@ import Navbar from "@/components/Navbar";
 import SearchBar from "@/components/SearchBar";
 import useAgendas from "@/hooks/useAgendaList";
 import { NextPageContext } from "next";
+import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-const Home = () => {
+interface IProps {
+  currSession: Session;
+}
+
+const Home: React.FC<IProps> = ({ currSession }) => {
   const [searchValue, setSearchValue] = useState("");
   const router = useRouter();
   const { data: agendas } = useAgendas(searchValue);
@@ -23,7 +28,7 @@ const Home = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar currSession={currSession} />
       <div className="m-8">
         <SearchBar value={searchValue} onChange={handleSeachBarChange} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1 mb-4">
@@ -55,7 +60,9 @@ export async function getServerSideProps(context: NextPageContext) {
   }
 
   return {
-    props: {},
+    props: {
+      currSession: session,
+    },
   };
 }
 

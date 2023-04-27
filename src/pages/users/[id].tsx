@@ -66,7 +66,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
 
   return (
     <>
-      <Navbar />
+      <Navbar currSession={currSession} />
       <div className="m-8">
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">

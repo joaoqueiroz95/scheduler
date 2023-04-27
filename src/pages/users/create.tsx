@@ -1,19 +1,17 @@
 import Navbar from "@/components/Navbar";
-import useUser from "@/hooks/useUser";
-import {
-  createUser,
-  editUser,
-  ICreateUserBody,
-  IEditUserBody,
-} from "@/service/user";
+import { createUser, ICreateUserBody } from "@/service/user";
 import { Role } from "@prisma/client";
 import { NextPageContext } from "next";
 import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-const UserDetails = () => {
+interface IProps {
+  currSession: Session;
+}
+
+const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -49,7 +47,7 @@ const UserDetails = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar currSession={currSession} />
       <div className="m-8">
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">

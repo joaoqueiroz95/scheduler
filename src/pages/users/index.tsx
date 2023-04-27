@@ -47,7 +47,7 @@ const Users: React.FC<IProps> = ({ currSession }) => {
 
   return (
     <>
-      <Navbar />
+      <Navbar currSession={currSession} />
       <div className="relative overflow-x-auto m-8">
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 mb-4">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

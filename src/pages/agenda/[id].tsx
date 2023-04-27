@@ -3,7 +3,6 @@ import { TrashIcon } from "@heroicons/react/24/solid";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/router";
-import { IAgenda } from "@/types/agenda";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 import useAgenda from "@/hooks/useAgenda";
@@ -168,7 +167,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
 
   return (
     <>
-      <Navbar />
+      <Navbar currSession={currSession} />
       <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <input
           type="text"
