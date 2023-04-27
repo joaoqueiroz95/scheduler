@@ -6,9 +6,12 @@ import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Role } from "@prisma/client";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 const Users = () => {
+  const router = useRouter();
+
   const [openDeleteUserModal, setOpenDeleteUserModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState("");
 
@@ -27,6 +30,10 @@ const Users = () => {
   const handleDeleteUser = (userId: string) => () => {
     setUserToDelete(userId);
     setOpenDeleteUserModal(true);
+  };
+
+  const handleEditUser = (userId: string) => () => {
+    router.push(`/users/${userId}`);
   };
 
   return (
@@ -65,7 +72,7 @@ const Users = () => {
                   <td className="px-6 py-4">{user.name}</td>
                   <td className="px-6 py-4">{user.role}</td>
                   <td className="">
-                    <button>
+                    <button onClick={handleEditUser(user.id)}>
                       <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
                     </button>
                   </td>

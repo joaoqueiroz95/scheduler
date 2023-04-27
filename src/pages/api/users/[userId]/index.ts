@@ -1,14 +1,22 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
-import bcrypt from "bcrypt";
-import { Role, User } from "@prisma/client";
+import { Prisma, Role, User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { checkRoles } from "@/middlewares/permissions";
-import { isManagerUser } from "@/libs/role";
+import { isManagerUser, isRegularUser } from "@/libs/role";
+import _ from "underscore";
+import bcrypt from "bcrypt";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    if (req.method === "DELETE") {
+    if (req.method === "GET") {
+      return await checkAuth(checkRoles(handleGet, [Role.MANAGER, Role.ADMIN]))(
+        req,
+        res
+      );
+    } else if (req.method === "PATCH") {
+      return await checkAuth(handlePatch)(req, res);
+    } else if (req.method === "DELETE") {
       return await checkAuth(checkRoles(handleDelete, [Role.ADMIN]))(req, res);
     }
 
@@ -16,6 +24,106 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   } catch (error) {
     return res.status(400).json({ error: `Something went wrong: ${error}` });
   }
+};
+
+// GET
+const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
+  const loggedUser = req.user as User;
+  const userId = req.query.userId as string;
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ error: "User does not exist." });
+  }
+
+  if (
+    isManagerUser(loggedUser) &&
+    !isRegularUser(user) &&
+    user.id !== loggedUser.id
+  ) {
+    return res.status(403).json({ error: "No permission to retrieve user." });
+  }
+
+  return res.status(200).json(_.pick(user, "id", "username", "name", "role"));
+};
+
+// PATCH
+const handlePatch = async (req: NextApiRequest, res: NextApiResponse) => {
+  const loggedUser = req.user as User;
+  const userId = req.query.userId as string;
+  const { name, username, password, role } = req.body;
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ error: "User does not exist." });
+  }
+
+  if (isRegularUser(loggedUser)) {
+    if (user.id !== loggedUser.id) {
+      return res.status(403).json({ error: "User can only edit itself." });
+    }
+
+    if (role && role !== Role.REGULAR) {
+      return res.status(403).json({ error: "User cannot promote itself." });
+    }
+  } else if (isManagerUser(loggedUser)) {
+    if (!isRegularUser(user) && user.id !== loggedUser.id) {
+      return res.status(403).json({ error: "No permission to edit user." });
+    }
+
+    if (role === Role.ADMIN) {
+      return res
+        .status(403)
+        .json({ error: "No permission to promote to Admin." });
+    }
+
+    if (role === Role.REGULAR && user.id === loggedUser.id) {
+      return res.status(403).json({ error: "User cannot demote itself." });
+    }
+  } else {
+    if (role !== Role.ADMIN && user.id === loggedUser.id) {
+      return res.status(403).json({ error: "User cannot demote itself." });
+    }
+  }
+
+  const dataQuery: Prisma.UserUpdateInput = {};
+  if (name) {
+    dataQuery.name = name;
+  }
+  if (username) {
+    dataQuery.username = username;
+  }
+  if (role) {
+    dataQuery.role = role;
+  }
+  if (password) {
+    dataQuery.password = await bcrypt.hash(password, 12);
+  }
+
+  const editedUser = await prismadb.user.update({
+    where: {
+      id: user.id,
+    },
+    data: dataQuery,
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      role: true,
+    },
+  });
+
+  return res.status(200).json(editedUser);
 };
 
 // DELETE
