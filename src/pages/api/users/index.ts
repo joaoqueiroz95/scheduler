@@ -6,6 +6,8 @@ import { checkAuth } from "@/middlewares/auth";
 import { checkRoles } from "@/middlewares/permissions";
 import { isAdminUser, isManagerUser } from "@/libs/role";
 import { getLoggedUser } from "@/libs/session";
+import { validateForm } from "@/middlewares/form";
+import { createUserSchema } from "@/constants/schemas/user";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
@@ -15,12 +17,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         res
       );
     } else if (req.method === "POST") {
-      return await handlePost(req, res);
+      return await validateForm(handlePost, createUserSchema)(req, res);
     }
 
     return res.status(405).end();
   } catch (error) {
-    return res.status(400).json({ error: `Something went wrong: ${error}` });
+    return res.status(400).json({ message: `Something went wrong: ${error}` });
   }
 };
 
@@ -65,7 +67,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (existingUser) {
-    return res.status(422).json({ error: "Username taken" });
+    return res.status(409).json({ message: "Username taken" });
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
@@ -85,7 +87,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     if (role && role !== Role.REGULAR) {
       return res
         .status(403)
-        .json({ error: "Invalid Role. Can only be 'REGULAR'." });
+        .json({ message: "Invalid Role. Can only be 'REGULAR'." });
     }
   }
 

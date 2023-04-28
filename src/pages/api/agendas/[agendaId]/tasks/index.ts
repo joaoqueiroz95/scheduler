@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res.status(405).end();
   } catch (error) {
-    return res.status(400).json({ error: `Something went wrong: ${error}` });
+    return res.status(400).json({ message: `Something went wrong: ${error}` });
   }
 };
 
@@ -37,12 +37,14 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!agenda) {
-    return res.status(404).json({ error: "'agendaId' does not exist." });
+    return res.status(404).json({ message: "'agendaId' does not exist." });
   }
 
   if (isRegularUser(loggedUser)) {
     if (agenda.ownerId !== loggedUser.id) {
-      return res.status(403).json({ error: "User cannot access this agenda." });
+      return res
+        .status(403)
+        .json({ message: "User cannot access this agenda." });
     }
   } else {
     const user = await prismadb.user.findUnique({
@@ -52,14 +54,14 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "Invalid agenda." });
+      return res.status(404).json({ message: "Invalid agenda." });
     }
 
     if (isManagerUser(loggedUser)) {
       if (!isRegularUser(user) && user.id !== loggedUser.id) {
         return res
           .status(403)
-          .json({ error: "User cannot access this agenda." });
+          .json({ message: "User cannot access this agenda." });
       }
     }
   }

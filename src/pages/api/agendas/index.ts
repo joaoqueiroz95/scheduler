@@ -14,7 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res.status(405).end();
   } catch (error) {
-    return res.status(400).json({ error: `Something went wrong: ${error}` });
+    return res.status(400).json({ message: `Something went wrong: ${error}` });
   }
 };
 
@@ -24,7 +24,7 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   const query = req.query.query as string | undefined;
 
   if (!loggedUser) {
-    return res.status(401).json({ error: "Unauthenticated" });
+    return res.status(401).json({ message: "Unauthenticated" });
   }
 
   let whereQuery: Prisma.AgendaWhereInput = {};
@@ -91,14 +91,14 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "'userId' does not exist." });
+      return res.status(404).json({ message: "'userId' does not exist." });
     }
 
     if (isManagerUser(loggedUser)) {
       if (!isRegularUser(user) && user.id !== loggedUser.id) {
         return res
           .status(403)
-          .json({ error: "You can only create agendas for regular users." });
+          .json({ message: "You can only create agendas for regular users." });
       }
     }
   }

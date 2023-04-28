@@ -7,7 +7,7 @@ export const checkRoles =
     const { user: loggedUser } = req;
 
     if (!loggedUser?.role) {
-      return res.status(401).json({ error: "Unauthenticated" });
+      return res.status(401).json({ message: "Unauthenticated" });
     }
 
     if (!roles.includes(loggedUser.role)) {

@@ -1,5 +1,4 @@
 import { getLoggedUser } from "@/libs/session";
-import { Role } from "@prisma/client";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
 
@@ -9,7 +8,7 @@ export const checkAuth =
     const loggedUser = await getLoggedUser(req, res);
 
     if (!loggedUser?.username) {
-      return res.status(401).json({ error: "Unauthenticated" });
+      return res.status(401).json({ message: "Unauthenticated" });
     }
 
     try {

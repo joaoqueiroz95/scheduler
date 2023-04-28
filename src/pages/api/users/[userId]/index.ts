@@ -19,7 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res.status(405).end();
   } catch (error) {
-    return res.status(400).json({ error: `Something went wrong: ${error}` });
+    return res.status(400).json({ message: `Something went wrong: ${error}` });
   }
 };
 
@@ -35,16 +35,20 @@ const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!user) {
-    return res.status(404).json({ error: "User does not exist." });
+    return res.status(404).json({ message: "User does not exist." });
   }
 
   if (isRegularUser(loggedUser)) {
     if (user.id !== loggedUser.id) {
-      return res.status(403).json({ error: "No permission to retrieve user." });
+      return res
+        .status(403)
+        .json({ message: "No permission to retrieve user." });
     }
   } else if (isManagerUser(loggedUser)) {
     if (!isRegularUser(user) && user.id !== loggedUser.id) {
-      return res.status(403).json({ error: "No permission to retrieve user." });
+      return res
+        .status(403)
+        .json({ message: "No permission to retrieve user." });
     }
   }
 
@@ -64,34 +68,34 @@ const handlePatch = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!user) {
-    return res.status(404).json({ error: "User does not exist." });
+    return res.status(404).json({ message: "User does not exist." });
   }
 
   if (isRegularUser(loggedUser)) {
     if (user.id !== loggedUser.id) {
-      return res.status(403).json({ error: "User can only edit itself." });
+      return res.status(403).json({ message: "User can only edit itself." });
     }
 
     if (role && role !== Role.REGULAR) {
-      return res.status(403).json({ error: "User cannot promote itself." });
+      return res.status(403).json({ message: "User cannot promote itself." });
     }
   } else if (isManagerUser(loggedUser)) {
     if (!isRegularUser(user) && user.id !== loggedUser.id) {
-      return res.status(403).json({ error: "No permission to edit user." });
+      return res.status(403).json({ message: "No permission to edit user." });
     }
 
     if (role === Role.ADMIN) {
       return res
         .status(403)
-        .json({ error: "No permission to promote to Admin." });
+        .json({ message: "No permission to promote to Admin." });
     }
 
     if (role === Role.REGULAR && user.id === loggedUser.id) {
-      return res.status(403).json({ error: "User cannot demote itself." });
+      return res.status(403).json({ message: "User cannot demote itself." });
     }
   } else {
     if (role !== Role.ADMIN && user.id === loggedUser.id) {
-      return res.status(403).json({ error: "User cannot demote itself." });
+      return res.status(403).json({ message: "User cannot demote itself." });
     }
   }
 
@@ -137,11 +141,11 @@ const handleDelete = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   if (!user) {
-    return res.status(404).json({ error: "User does not exist." });
+    return res.status(404).json({ message: "User does not exist." });
   }
 
   if (user.id === loggedUser.id) {
-    return res.status(403).json({ error: "User cannot delete itself." });
+    return res.status(403).json({ message: "User cannot delete itself." });
   }
 
   await prismadb.user.delete({
