@@ -27,7 +27,7 @@ const SignUp = () => {
         toast.error((error as any).response.data.error);
       }
     },
-    [username, password]
+    [username, password, fullName, router]
   );
 
   return (

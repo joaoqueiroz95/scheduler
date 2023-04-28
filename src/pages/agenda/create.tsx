@@ -41,8 +41,8 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   const [nextId, setNextId] = useState(0);
 
   let users: User[] = [];
+  const { data } = useUsers(currSession.user.role);
   if (currSession.user.role !== Role.REGULAR) {
-    const { data } = useUsers();
     if (data) {
       users = data?.users;
     }

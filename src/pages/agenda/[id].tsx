@@ -56,13 +56,13 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [agenda?.timezone]);
+  }, [agenda]);
 
   let users: User[] = [];
+  const { data: userData } = useUsers(currSession.user.role);
   if (currSession.user.role !== Role.REGULAR) {
-    const { data } = useUsers();
     if (data) {
-      users = data?.users;
+      users = userData?.users ?? [];
     }
   }
 
@@ -80,7 +80,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
 
   useEffect(() => {
     const func = async () => {
-      if (agenda?.name !== agendaTitle) {
+      if (agenda?.name !== agendaTitle && agenda?.name) {
         await editAgenda(agendaId, { name: agendaTitle });
         mutateAgenda();
       }
@@ -92,7 +92,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [agendaTitle]);
+  }, [agendaTitle, agenda?.name]);
 
   const handleTimezoneChange = async (
     event: React.ChangeEvent<HTMLSelectElement>

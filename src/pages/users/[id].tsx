@@ -20,7 +20,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const id = router.query.id as string;
   const userId = useMemo(
     () => (id === MY_PROFILE ? currSession.user.id : id),
-    [id]
+    [id, currSession.user.id]
   );
 
   const [username, setUsername] = useState("");
@@ -42,7 +42,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
     }
 
     return [Role.REGULAR, Role.MANAGER];
-  }, []);
+  }, [currSession.user.role]);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();

@@ -26,7 +26,7 @@ const Auth = () => {
         }
       });
     },
-    [username, password]
+    [username, password, router]
   );
 
   return (
