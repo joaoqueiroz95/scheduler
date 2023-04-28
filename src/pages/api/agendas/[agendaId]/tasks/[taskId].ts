@@ -3,11 +3,16 @@ import prismadb from "@/libs/prismadb";
 import { User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { isManagerUser, isRegularUser } from "@/libs/role";
+import { editTaskSchema } from "@/constants/schemas/task";
+import { validateForm } from "@/middlewares/form";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "PATCH") {
-      return await checkAuth(handlePatch)(req, res);
+      return await checkAuth(validateForm(handlePatch, editTaskSchema))(
+        req,
+        res
+      );
     } else if (req.method === "DELETE") {
       return await checkAuth(handleDelete)(req, res);
     }

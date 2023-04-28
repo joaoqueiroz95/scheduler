@@ -6,13 +6,18 @@ import { checkRoles } from "@/middlewares/permissions";
 import { isManagerUser, isRegularUser } from "@/libs/role";
 import _ from "underscore";
 import bcrypt from "bcrypt";
+import { editUserSchema } from "@/constants/schemas/user";
+import { validateForm } from "@/middlewares/form";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "GET") {
       return await checkAuth(handleGet)(req, res);
     } else if (req.method === "PATCH") {
-      return await checkAuth(handlePatch)(req, res);
+      return await checkAuth(validateForm(handlePatch, editUserSchema))(
+        req,
+        res
+      );
     } else if (req.method === "DELETE") {
       return await checkAuth(checkRoles(handleDelete, [Role.ADMIN]))(req, res);
     }

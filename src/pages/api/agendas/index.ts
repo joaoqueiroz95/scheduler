@@ -3,13 +3,18 @@ import prismadb from "@/libs/prismadb";
 import { Prisma, Role, User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { isManagerUser, isRegularUser } from "@/libs/role";
+import { validateForm } from "@/middlewares/form";
+import { createAgendaSchema } from "@/constants/schemas/agenda";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "GET") {
       return await checkAuth(handleGet)(req, res);
     } else if (req.method === "POST") {
-      return await checkAuth(handlePost)(req, res);
+      return await checkAuth(validateForm(handlePost, createAgendaSchema))(
+        req,
+        res
+      );
     }
 
     return res.status(405).end();

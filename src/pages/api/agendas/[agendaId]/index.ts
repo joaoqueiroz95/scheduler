@@ -1,15 +1,20 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/libs/prismadb";
-import { Role, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { isManagerUser, isRegularUser } from "@/libs/role";
+import { validateForm } from "@/middlewares/form";
+import { editAgendaSchema } from "@/constants/schemas/agenda";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === "GET") {
       return await checkAuth(handleGet)(req, res);
     } else if (req.method === "PATCH") {
-      return await checkAuth(handlePatch)(req, res);
+      return await checkAuth(validateForm(handlePatch, editAgendaSchema))(
+        req,
+        res
+      );
     } else if (req.method === "DELETE") {
       return await checkAuth(handleDelete)(req, res);
     }
