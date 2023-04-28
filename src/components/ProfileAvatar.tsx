@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 import { Fragment } from "react";
 
 function classNames(...classes: string[]) {
@@ -43,7 +44,7 @@ const ProfileAvatar: React.FC<IProps> = ({ currSession }) => {
           </Menu.Item>
           <Menu.Item>
             {({ active }) => (
-              <a
+              <Link
                 href={`/users/my-profile`}
                 className={classNames(
                   active ? "bg-gray-100" : "",
@@ -51,7 +52,7 @@ const ProfileAvatar: React.FC<IProps> = ({ currSession }) => {
                 )}
               >
                 My Profile
-              </a>
+              </Link>
             )}
           </Menu.Item>
           <Menu.Item>

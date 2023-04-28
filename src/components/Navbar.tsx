@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 import ProfileAvatar from "./ProfileAvatar";
 
 interface IProps {
@@ -16,13 +17,13 @@ const Navbar: React.FC<IProps> = ({ currSession }) => {
     <nav className="bg-gray-900 py-4">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div className="flex-shrink-0 ml-4">
-          <a href="/" className="text-white font-bold text-l mr-8">
+          <Link href="/" className="text-white font-bold text-l mr-8">
             Home
-          </a>
+          </Link>
           {currSession.user.role !== Role.REGULAR && (
-            <a href="/users" className="text-white font-bold text-l">
+            <Link href="/users" className="text-white font-bold text-l">
               Users
-            </a>
+            </Link>
           )}
         </div>
         <div className="flex-shrink-0">

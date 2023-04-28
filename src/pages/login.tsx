@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 const Auth = () => {
   const [username, setUsername] = useState("");
@@ -94,12 +95,12 @@ const Auth = () => {
 
           <p className="mt-10 text-center text-sm text-gray-500">
             No account?{" "}
-            <a
+            <Link
               href="/register"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
