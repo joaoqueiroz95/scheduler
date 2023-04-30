@@ -10,13 +10,15 @@ const useAgendas = (querySearch: string) => {
   let { data, error, isLoading } = useSwr<IGetAgenda>(url, fetcher);
 
   if (!data) {
-    data = {
-      agendas: [],
+    return {
+      data: [],
+      error,
+      isLoading,
     };
   }
 
   return {
-    data,
+    data: data.agendas,
     error,
     isLoading,
   };
