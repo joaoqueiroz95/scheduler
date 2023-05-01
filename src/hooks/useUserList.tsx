@@ -2,9 +2,9 @@ import useSwr from "swr";
 import fetcher from "@/libs/fetcher";
 import { IGetUsers } from "@/types/user";
 
-const useUsers = () => {
+const useUsers = (canCall: boolean) => {
   let { data, error, isLoading, mutate } = useSwr<IGetUsers>(
-    `/api/users`,
+    canCall ? `/api/users` : null,
     fetcher
   );
 
