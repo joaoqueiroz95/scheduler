@@ -7,13 +7,13 @@ export const checkAuth =
   async (req: NextApiRequest, res: NextApiResponse) => {
     const loggedUser = await getLoggedUser(req, res);
 
-    if (!loggedUser?.username) {
+    if (!loggedUser?.id) {
       return res.status(401).json({ message: "Unauthenticated" });
     }
 
     try {
       const user = await prismadb.user.findUnique({
-        where: { username: loggedUser.username },
+        where: { id: loggedUser.id },
       });
 
       if (!user) {

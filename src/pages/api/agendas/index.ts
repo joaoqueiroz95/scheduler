@@ -96,7 +96,7 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "'userId' does not exist." });
+      return res.status(404).json({ message: "'ownerId' does not exist." });
     }
 
     if (isManagerUser(loggedUser)) {

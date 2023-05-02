@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { Prisma, Role, User } from "@prisma/client";
 import { checkAuth } from "@/middlewares/auth";
 import { checkRoles } from "@/middlewares/permissions";
-import { isAdminUser, isManagerUser } from "@/libs/role";
+import { isManagerUser } from "@/libs/role";
 import { getLoggedUser } from "@/libs/session";
 import { validateForm } from "@/middlewares/form";
 import { createUserSchema } from "@/constants/schemas/user";
