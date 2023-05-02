@@ -121,7 +121,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [agendaTitle, agenda?.name]);
+  }, [agendaTitle, agenda?.name, agendaId]);
 
   const handleTimezoneChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
