@@ -8,8 +8,17 @@ const useUsers = (canCall: boolean) => {
     fetcher
   );
 
+  if (!data) {
+    return {
+      data: [],
+      error,
+      isLoading,
+      mutate,
+    };
+  }
+
   return {
-    data,
+    data: data.users,
     error,
     isLoading,
     mutate,

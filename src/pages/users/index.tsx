@@ -21,8 +21,7 @@ const Users: React.FC<IProps> = ({ currSession }) => {
   const [openDeleteUserModal, setOpenDeleteUserModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState("");
 
-  const { data, mutate: mutateUsers } = useUsers();
-  const users = data?.users;
+  const { data: users, mutate: mutateUsers } = useUsers(true);
 
   const handleDeleteUserModal = async () => {
     await deleteUser(userToDelete);

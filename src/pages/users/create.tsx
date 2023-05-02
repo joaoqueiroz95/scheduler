@@ -6,7 +6,17 @@ import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
+import { createUserSchema } from "@/constants/schemas/user";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+
+interface IFormData {
+  name: string;
+  username: string;
+  password: string;
+  role: string;
+}
 
 interface IProps {
   currSession: Session;
@@ -14,6 +24,14 @@ interface IProps {
 
 const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const router = useRouter();
+
+  const {
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<IFormData>({
+    resolver: zodResolver(createUserSchema),
+  });
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,20 +41,20 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const possibleRoles = useMemo(() => Object.values(Role), []);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setName(event.currentTarget.value);
+    setValue("name", event.currentTarget.value);
   };
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setUsername(event.currentTarget.value);
+    setValue("username", event.currentTarget.value);
   };
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setPassword(event.currentTarget.value);
+    setValue("password", event.currentTarget.value);
   };
   const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    event.preventDefault();
     setRole(event.currentTarget.value as Role);
+    setValue("role", event.currentTarget.value);
   };
 
   const handleCreateUser = async () => {
@@ -64,6 +82,11 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             onChange={handleNameChange}
             required
           />
+          {errors.name && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              {errors.name.message}
+            </p>
+          )}
         </div>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -77,6 +100,11 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             onChange={handleUsernameChange}
             required
           />
+          {errors.username && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              {errors.username.message}
+            </p>
+          )}
         </div>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -90,6 +118,11 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             onChange={handlePasswordChange}
             required
           />
+          {errors.password && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              {errors.password.message}
+            </p>
+          )}
         </div>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -108,7 +141,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
           </select>
         </div>
         <button
-          onClick={handleCreateUser}
+          onClick={handleSubmit(handleCreateUser)}
           className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
         >
           Save

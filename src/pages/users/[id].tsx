@@ -7,16 +7,34 @@ import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
+import { editUserSchema } from "@/constants/schemas/user";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
 const MY_PROFILE = "my-profile";
 
+interface IFormData {
+  name?: string;
+  username?: string;
+  password?: string;
+  role?: string;
+}
 interface IProps {
   currSession: Session;
 }
 
 const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const router = useRouter();
+
+  const {
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<IFormData>({
+    resolver: zodResolver(editUserSchema),
+  });
+
   const id = router.query.id as string;
   const userId = useMemo(
     () => (id === MY_PROFILE ? currSession.user.id : id),
@@ -32,7 +50,9 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
 
   useEffect(() => {
     setName(user?.name ?? "");
+    setValue("name", user?.name ?? "");
     setUsername(user?.username ?? "");
+    setValue("username", user?.username ?? "");
     setRole(user?.role ?? Role.REGULAR);
   }, [user]);
 
@@ -45,20 +65,20 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
   }, [currSession.user.role]);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setName(event.currentTarget.value);
+    setValue("name", event.currentTarget.value);
   };
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setUsername(event.currentTarget.value);
+    setValue("username", event.currentTarget.value);
   };
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
     setPassword(event.currentTarget.value);
+    setValue("password", event.currentTarget.value);
   };
   const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    event.preventDefault();
     setRole(event.currentTarget.value as Role);
+    setValue("role", event.currentTarget.value);
   };
 
   const handleEditUser = async () => {
@@ -91,6 +111,11 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             onChange={handleNameChange}
             required
           />
+          {errors.name && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              {errors.name.message}
+            </p>
+          )}
         </div>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -105,6 +130,11 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             required
             disabled={currSession.user.id === userId}
           />
+          {errors.username && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              {errors.username.message}
+            </p>
+          )}
         </div>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -118,6 +148,11 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             onChange={handlePasswordChange}
             required
           />
+          {errors.password && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+              {errors.password.message}
+            </p>
+          )}
         </div>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -137,7 +172,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
           </select>
         </div>
         <button
-          onClick={handleEditUser}
+          onClick={handleSubmit(handleEditUser)}
           className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
         >
           Save

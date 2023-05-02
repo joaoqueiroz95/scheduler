@@ -15,6 +15,9 @@ import useUsers from "@/hooks/useUserList";
 import { getTimeInfo } from "@/libs/time";
 import { TIMEZONES } from "@/constants/timezone";
 import toast from "react-hot-toast";
+import { IUser } from "@/types/user";
+import Loader from "@/components/Spinner";
+import { IAgenda } from "@/types/agenda";
 
 interface IProps {
   currSession: Session;
@@ -23,7 +26,11 @@ interface IProps {
 const Agenda: React.FC<IProps> = ({ currSession }) => {
   const router = useRouter();
   const agendaId = router.query.id as string;
-  const { data, mutate: mutateAgenda } = useAgenda(agendaId);
+  const {
+    data: agendaData,
+    mutate: mutateAgenda,
+    isLoading: isAgendaLoading,
+  } = useAgenda(agendaId);
 
   const [task, setTask] = useState("");
   const [taskId, setTaskId] = useState("");
@@ -38,7 +45,12 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   const [targetTime, setTargetTime] = useState("");
   const [timeDiff, setTimeDiff] = useState(0);
 
-  const agenda = data;
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [isUsersSet, setIsUsersSet] = useState(false);
+
+  const [agenda, setAgenda] = useState<IAgenda | undefined>();
+  const [isAgendaSet, setIsAgendaSet] = useState(false);
+
   /* if (router.query.agenda) {
     agenda = JSON.parse(router.query.agenda as string);
   } else {
@@ -46,25 +58,42 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
   } */
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const updateTime = () => {
       const agendaTimezone = agenda ? agenda.timezone : "UTC";
       const { browserTime, targetTime, timeDiff } = getTimeInfo(agendaTimezone);
 
       setBrowserTime(browserTime);
       setTargetTime(targetTime);
       setTimeDiff(timeDiff);
+    };
+
+    if (agenda) {
+      updateTime();
+    }
+    const timer = setInterval(() => {
+      updateTime();
     }, 1000);
 
     return () => clearInterval(timer);
   }, [agenda]);
 
-  let users: User[] = [];
-  const { data: userData } = useUsers(currSession.user.role !== Role.REGULAR);
-  if (currSession.user.role !== Role.REGULAR) {
-    if (data) {
-      users = userData?.users ?? [];
+  const { data: usersData, isLoading: isUsersLoading } = useUsers(
+    currSession.user.role !== Role.REGULAR
+  );
+
+  useEffect(() => {
+    if (!isUsersLoading) {
+      setUsers(usersData);
+      setIsUsersSet(true);
     }
-  }
+  }, [usersData, isUsersLoading]);
+
+  useEffect(() => {
+    if (!isAgendaLoading) {
+      setAgenda(agendaData);
+      setIsAgendaSet(true);
+    }
+  }, [agendaData, isAgendaLoading]);
 
   useEffect(() => {
     setOwner(agenda?.ownerId ?? "");
@@ -233,26 +262,34 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
             {isEdit ? "Edit" : "Add"}
           </button>
         </div>
-        <ul className="divide-y divide-gray-200 mb-4 overflow-y-auto max-h-96">
-          {agenda &&
-            agenda.tasks.map((task) => (
-              <li
-                key={task.id}
-                className="py-4 flex items-center justify-between gap-6"
-              >
-                <span className="font-medium flex-1">{task.name}</span>
-                <button onClick={handleClickEditTask(task.id)}>
-                  <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
-                </button>
-                <button>
-                  <TrashIcon
-                    className="h-6 w-6 text-red-500 hover:text-red-600"
-                    onClick={handleDeleteTask(task.id)}
-                  />
-                </button>
-              </li>
-            ))}
-        </ul>
+        {isUsersSet && isAgendaSet && (
+          <ul className="divide-y divide-gray-200 mb-4 overflow-y-auto max-h-96">
+            {agenda &&
+              agenda.tasks.map((task) => (
+                <li
+                  key={task.id}
+                  className="py-4 flex items-center justify-between gap-6"
+                >
+                  <span className="font-medium flex-1">{task.name}</span>
+                  <button onClick={handleClickEditTask(task.id)}>
+                    <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
+                  </button>
+                  <button>
+                    <TrashIcon
+                      className="h-6 w-6 text-red-500 hover:text-red-600"
+                      onClick={handleDeleteTask(task.id)}
+                    />
+                  </button>
+                </li>
+              ))}
+          </ul>
+        )}
+        {(isUsersLoading || isAgendaLoading) &&
+          (!isUsersSet || !isAgendaSet) && (
+            <div className="my-4">
+              <Loader />
+            </div>
+          )}
         <button
           onClick={handleDeleteAgenda}
           className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md"

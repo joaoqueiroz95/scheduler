@@ -1,34 +1,47 @@
 import { useCallback, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import toast from "react-hot-toast";
 import Link from "next/link";
+import { createUserSchema } from "@/constants/schemas/user";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+
+interface IFormData {
+  name: string;
+  username: string;
+  password: string;
+}
 
 const SignUp = () => {
   const router = useRouter();
+
+  const {
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<IFormData>({
+    resolver: zodResolver(createUserSchema),
+  });
 
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const signUp = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
+  const signUp = useCallback(async () => {
+    try {
+      await axios.post("/api/users", {
+        name: fullName,
+        username,
+        password,
+      });
 
-      try {
-        await axios.post("/api/users", {
-          name: fullName,
-          username,
-          password,
-        });
-
-        router.push("/login");
-      } catch (error) {
-        toast.error((error as any).response.data.error);
-      }
-    },
-    [username, password, fullName, router]
-  );
+      router.push("/login");
+      toast.success("User Created.");
+    } catch (error) {
+      console.log(error);
+    }
+  }, [username, password, fullName, router]);
 
   return (
     <>
@@ -45,22 +58,34 @@ const SignUp = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" onSubmit={signUp} noValidate>
+          <form
+            className="space-y-6"
+            onSubmit={handleSubmit(signUp)}
+            noValidate
+          >
             <div>
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 Full Name
               </label>
               <div className="mt-2">
                 <input
-                  id="full-name"
-                  name="full-name"
+                  id="fullName"
+                  name="fullName"
                   type="text"
                   autoComplete="full-name"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={fullName}
-                  onChange={(e: any) => setFullName(e.target.value)}
+                  onChange={(e: any) => {
+                    setFullName(e.target.value);
+                    setValue("name", e.target.value);
+                  }}
                 />
+                {errors.name && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -77,8 +102,16 @@ const SignUp = () => {
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={username}
-                  onChange={(e: any) => setUsername(e.target.value)}
+                  onChange={(e: any) => {
+                    setUsername(e.target.value);
+                    setValue("username", e.target.value);
+                  }}
                 />
+                {errors.username && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {errors.username.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -97,8 +130,16 @@ const SignUp = () => {
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={password}
-                  onChange={(e: any) => setPassword(e.target.value)}
+                  onChange={(e: any) => {
+                    setPassword(e.target.value);
+                    setValue("password", e.target.value);
+                  }}
                 />
+                {errors.password && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
             </div>
 
