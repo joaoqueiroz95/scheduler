@@ -34,8 +34,10 @@ const Users: React.FC<IProps> = ({ currSession }) => {
   };
 
   const handleDeleteUser = (userId: string) => () => {
-    setUserToDelete(userId);
-    setOpenDeleteUserModal(true);
+    if (currSession.user.id !== userId) {
+      setUserToDelete(userId);
+      setOpenDeleteUserModal(true);
+    }
   };
 
   const handleEditUser = (userId: string) => () => {
@@ -64,7 +66,7 @@ const Users: React.FC<IProps> = ({ currSession }) => {
                   Role
                 </th>
                 <th />
-                <th />
+                {currSession.user.role === Role.ADMIN && <th />}
               </tr>
             </thead>
             <tbody>
@@ -87,11 +89,27 @@ const Users: React.FC<IProps> = ({ currSession }) => {
                         <PencilSquareIcon className="h-6 w-6 text-blue-500 hover:text-blue-600" />
                       </button>
                     </td>
-                    <td className="">
-                      <button onClick={handleDeleteUser(user.id)}>
-                        <TrashIcon className="h-6 w-6 text-red-500 hover:text-red-600" />
-                      </button>
-                    </td>
+                    {currSession.user.role === Role.ADMIN && (
+                      <td className="">
+                        <button
+                          className={
+                            currSession.user.id === user.id
+                              ? "cursor-auto"
+                              : "cursor-pointer"
+                          }
+                          onClick={handleDeleteUser(user.id)}
+                        >
+                          <TrashIcon
+                            className={
+                              "h-6 w-6 " +
+                              (currSession.user.id === user.id
+                                ? "text-gray-400"
+                                : "text-red-500 hover:text-red-600")
+                            }
+                          />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
             </tbody>

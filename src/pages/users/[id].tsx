@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import useUser from "@/hooks/useUser";
-import { editUser, IEditUserBody } from "@/service/user";
+import { deleteUser, editUser, IEditUserBody } from "@/service/user";
 import { Role } from "@prisma/client";
 import { NextPageContext } from "next";
 import { Session } from "next-auth";
@@ -11,6 +11,7 @@ import { editUserSchema } from "@/constants/schemas/user";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import DeleteUserModal from "@/components/DeleteUserModal";
 
 const MY_PROFILE = "my-profile";
 
@@ -46,6 +47,8 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
   const [name, setName] = useState("");
   const [role, setRole] = useState<Role>(Role.REGULAR);
 
+  const [openDeleteUserModal, setOpenDeleteUserModal] = useState(false);
+
   const { data: user } = useUser(userId);
 
   useEffect(() => {
@@ -55,6 +58,19 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
     setValue("username", user?.username ?? "");
     setRole(user?.role ?? Role.REGULAR);
   }, [user]);
+
+  const handleDeleteUserModal = async () => {
+    await deleteUser(userId);
+    toast.success("User deleted.");
+    setOpenDeleteUserModal(false);
+    router.push("/users");
+  };
+  const handleCloseUserModal = () => {
+    setOpenDeleteUserModal(false);
+  };
+  const handleDeleteUser = () => {
+    setOpenDeleteUserModal(true);
+  };
 
   const possibleRoles = useMemo(() => {
     if (currSession.user.role === Role.ADMIN) {
@@ -90,7 +106,7 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
 
     toast.success("User edited.");
 
-    if (id !== MY_PROFILE) {
+    if (id !== MY_PROFILE && id !== currSession.user.id) {
       router.push("/users");
     }
   };
@@ -171,13 +187,30 @@ const UserDetails: React.FC<IProps> = ({ currSession }) => {
             ))}
           </select>
         </div>
-        <button
-          onClick={handleSubmit(handleEditUser)}
-          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-        >
-          Save
-        </button>
+        <div>
+          <button
+            onClick={handleSubmit(handleEditUser)}
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mr-3"
+          >
+            Save
+          </button>
+          {currSession.user.role === Role.ADMIN &&
+            id !== MY_PROFILE &&
+            id !== currSession.user.id && (
+              <button
+                onClick={handleDeleteUser}
+                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md"
+              >
+                Delete
+              </button>
+            )}
+        </div>
       </div>
+      <DeleteUserModal
+        open={openDeleteUserModal}
+        onCancel={handleCloseUserModal}
+        onDelete={handleDeleteUserModal}
+      />
     </>
   );
 };
