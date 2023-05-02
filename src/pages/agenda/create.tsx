@@ -40,13 +40,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
 
   const [nextId, setNextId] = useState(0);
 
-  let users: User[] = [];
-  const { data } = useUsers(currSession.user.role !== Role.REGULAR);
-  if (currSession.user.role !== Role.REGULAR) {
-    if (data) {
-      users = data?.users;
-    }
-  }
+  const { data: usersData } = useUsers(currSession.user.role !== Role.REGULAR);
 
   const handleTimezoneChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -153,7 +147,7 @@ const Agenda: React.FC<IProps> = ({ currSession }) => {
                 onChange={handleOwnerChange}
                 className="border-2 border-gray-300 py-2 pl-4 pr-8 w-full rounded-md mr-2"
               >
-                {users.map((user) => (
+                {usersData.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.username}
                   </option>
